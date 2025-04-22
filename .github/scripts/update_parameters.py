@@ -4,7 +4,7 @@ import sys
 from datetime import datetime
 from dateutil.relativedelta import relativedelta, MO
 
-yaml_file_path = '../../resources/job_parameters.yml'  # Update this path
+yaml_file_path = '/resources/job_parameters.yml'  # Update this path
 
 # Calculate next Monday's date
 today = datetime.now()

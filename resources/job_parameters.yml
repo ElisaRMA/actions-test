@@ -1,0 +1,17 @@
+variables:
+  parameters_credit:
+    description: Job parameters for credit_data_science_prod_v1_aws job.
+    type: complex
+    default:
+    - name: DEBUG
+      default: 'false'
+    - name: ENVIRONMENT
+      default: prod
+    - name: FREEZE_PROCESSING_DATE
+      default: 'true'
+    - name: REFERENCE_DATE
+      default: '2025-04-28'
+    - name: STAGE
+      default: Production
+    - name: WRITE_CREDIT_ENGINE
+      default: 'true'

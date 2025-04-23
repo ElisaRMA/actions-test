@@ -15,3 +15,5 @@ variables:
       default: Production
     - name: WRITE_CREDIT_ENGINE
       default: 'true'
+    - name: INITIAL_DATE
+      default: 2025-01-01

@@ -64,7 +64,7 @@ jobs:
   
   send-slack-notification:
     needs: update-reference-date
-    uses: .github/workflows/slack_webhook.yml
+    uses: ./.github/workflows/slack_webhook.yml
     with:
       action_runner: "ubuntu-latest"
       slack_message: "🔄 PR para atualização dos parâmetros do job criada!"

@@ -31,6 +31,14 @@ def parse_parameters_to_output(parameters):
         output_lines.append(line)
     
     return "\n".join(output_lines)
+    
+def format_for_slack(parameters_text):
+    """Format parameters text for safe inclusion in Slack JSON"""
+    # Escape backticks and quotes
+    escaped = parameters_text.replace('`', '\\`').replace('"', '\\"')
+    # Convert to single line with \n markers
+    return escaped.replace('\n', '\\n')
+
 
 # Calculate next Monday's date
 today = datetime.now()
@@ -53,6 +61,7 @@ except yaml.YAMLError as e:
 # Get parameters before updating (for the output)
 parameters = yaml_data.get('variables', {}).get('parameters_credit', {}).get('default', [])
 parameters_output = parse_parameters_to_output(parameters)
+slack_safe_params = format_for_slack(params_text)
 
 updated = False
 for param in parameters:
@@ -77,5 +86,4 @@ with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
     f.write(f"branch_name=update-reference-date-{next_monday_str}\n")
     f.write(f"old_date={old_date}\n")
     f.write(f"file_changed={yaml_file_path}\n")
-    # Add the formatted parameters as a new output
-    f.write(f"formatted_parameters<<EOF\n{parameters_output}\nEOF\n")
+    f.write(f"slack_safe_parameters={slack_safe_params}\n")

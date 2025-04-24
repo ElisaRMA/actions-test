@@ -16,17 +16,17 @@ def parse_parameters_to_output(parameters):
         # Determine if value needs quotes
         needs_quotes = False
         if isinstance(value, str):
-            # Don't quote numbers, booleans, or dates in ISO format
+            # Only quote string values that aren't numbers, booleans, or dates
             if (value.lower() not in ['true', 'false'] and 
-                not value.replace('-', '').isdigit() and  # Exclude dates and numbers
+                not value.replace('-', '').isdigit() and
                 not value.isdigit()):
                 needs_quotes = True
         
-        # Format the line
+        # Format the line - using single quotes when needed
         if needs_quotes:
-            line = f'{name} = "{value}"'
+            line = f"{name} = '{value}'"  # Using single quotes
         else:
-            line = f'{name} = {value}'
+            line = f"{name} = {value}"
         
         output_lines.append(line)
     

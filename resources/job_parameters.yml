@@ -10,7 +10,7 @@ variables:
     - name: FREEZE_PROCESSING_DATE
       default: 'true'
     - name: REFERENCE_DATE
-      default: 2025-04-21
+      default: '2025-04-28'
     - name: STAGE
       default: Production
     - name: WRITE_CREDIT_ENGINE

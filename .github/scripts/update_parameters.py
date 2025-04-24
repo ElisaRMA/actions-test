@@ -61,7 +61,7 @@ except yaml.YAMLError as e:
 # Get parameters before updating (for the output)
 parameters = yaml_data.get('variables', {}).get('parameters_credit', {}).get('default', [])
 parameters_output = parse_parameters_to_output(parameters)
-slack_safe_params = format_for_slack(params_text)
+slack_safe_params = format_for_slack(parameters_output)
 
 updated = False
 for param in parameters:

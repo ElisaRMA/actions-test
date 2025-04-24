@@ -214,7 +214,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*Parâmetros Atuais:*\n```\n${{ steps.update-date.outputs.slack_safe_parameters }}\n```"
+                    "text": "*Parâmetros Atuais:*\n```\n${{ needs.update-date.outputs.slack_safe_parameters }}\n```"
                   }
                 },
                 {

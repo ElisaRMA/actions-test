@@ -45,3 +45,5 @@ with open(yaml_file_path, 'w') as file:
 with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
     f.write(f"next_monday={next_monday_str}\n")
     f.write(f"branch_name=update-reference-date-{next_monday_str}\n")
+    f.write(f"old_date={old_date}\n")
+    f.write(f"file_changed={yaml_file_path}\n")

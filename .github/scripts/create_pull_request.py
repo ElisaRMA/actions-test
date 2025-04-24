@@ -193,3 +193,6 @@ def main():
     write_github_output("diff_content", diff_content)
     
     print(f"PR #{pr_info['pr_number']} created: {pr_info['pr_url']}")
+  
+if __name__ == "__main__":
+    main()

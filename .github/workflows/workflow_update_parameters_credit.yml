@@ -193,7 +193,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*A new PR has been created to update the Reference Date to ${{ needs.update-reference-date.outputs.next_monday }}*"
+                    "text": "*Uma nova PR foi criada para atualizar o parêmetro REFERENCE_DATE*"
                   }
                 },
                 {
@@ -201,11 +201,11 @@ jobs:
                   "fields": [
                     {
                       "type": "mrkdwn",
-                      "text": "*PR Link*\n<${{ needs.update-reference-date.outputs.pr_url }}|View Pull Request #${{ needs.update-reference-date.outputs.pr_number }}>"
+                      "text": "*Link para PR*\n<${{ needs.update-reference-date.outputs.pr_url }}|View Pull Request #${{ needs.update-reference-date.outputs.pr_number }}>"
                     },
                     {
                       "type": "mrkdwn",
-                      "text": "*Workflow Run*\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Logs>"
+                      "text": "*Link para o Job*\n https://stone-dataplatform-production.cloud.databricks.com/jobs/1121459475236441|View Logs>"
                     }
                   ]
                 },

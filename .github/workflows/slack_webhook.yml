@@ -1,0 +1,66 @@
+name: Slack Webhook Message
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        type: string
+        required: false
+
+      action_runner:
+        type: string
+        required: false
+        default: "small-runner"
+      
+      slack_message:
+        type: string
+        required: false
+        default: "Github Actions Alert"
+
+    secrets:
+      SLACK_WEBHOOK_URL:
+        required: true
+
+jobs:
+   slack-webhook-message:
+    runs-on:
+      - ${{ inputs.action_runner }}
+    environment:
+      name: ${{ inputs.environment }}
+    steps:
+    - name: Send custom JSON data to Slack workflow
+      id: slack
+      uses: slackapi/slack-github-action@v1.26.0
+      with:
+        payload: |
+          {
+            "blocks": [
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": "*:alerta: ${{ inputs.slack_message }} :alerta:*"
+                }
+              },
+              {
+                "type": "section",
+                "fields": [
+                  {
+                    "type": "mrkdwn",
+                    "text": "*Workflow*\n`${{ github.workflow }}`"
+                  },
+                  {
+                    "type": "mrkdwn",
+                    "text": "*Build Logs*\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Logs>"
+                  },
+                  {
+                    "type": "mrkdwn",
+                    "text": "*Repo*\n<https://github.com/${{ github.repository }}|${{ github.repository }}>"
+                  }
+                ]
+              }
+            ]
+          }
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK

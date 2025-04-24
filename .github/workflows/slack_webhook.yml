@@ -17,6 +17,11 @@ on:
         required: false
         default: "Github Actions Alert"
 
+      custom_payload:  # Add this new input
+        type: string
+        required: false
+        description: "Custom JSON payload for Slack message"
+
     secrets:
       SLACK_WEBHOOK_URL:
         required: true

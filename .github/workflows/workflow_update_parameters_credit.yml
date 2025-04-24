@@ -224,6 +224,13 @@ jobs:
                   }
                 },
                 {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "FYI @mlops"
+                  }
+                },                
+                {
                   "type": "divider"
                 },
                 {

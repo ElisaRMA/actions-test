@@ -3,7 +3,7 @@ name: Update Reference Date to Next Monday
 on:
   schedule:
     # Runs every Thursday at 9:00 AM UTC
-    - cron: '0 9 * * 3'
+    - cron: '0 9 * * 4'
   # Optional: Allow manual workflow dispatch
   workflow_dispatch:
 
@@ -11,13 +11,22 @@ on:
 permissions:
   contents: write
   pull-requests: write
-  
+
 jobs:
   update-reference-date:
     runs-on: ubuntu-latest
+    outputs:
+      pr_url: ${{ steps.create-pr.outputs.pr_url }}
+      pr_number: ${{ steps.create-pr.outputs.pr_number }}
+      next_monday: ${{ steps.update-date.outputs.next_monday }}
+      old_date: ${{ steps.update-date.outputs.old_date }}
+      file_changed: ${{ steps.update-date.outputs.file_changed }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          # Fetch all history for all branches
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -27,14 +36,32 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pyyaml python-dateutil
+          pip install python-dateutil
           pip install requests
 
       - name: Update reference date to next Monday
         id: update-date
-        run: python .github/scripts/update_parameters.py
+        run: python .github/scripts/update_reference_date.py
         shell: bash
-        
+
+      - name: Create unique branch name
+        id: branch-name
+        run: |
+          # Add timestamp to make branch name unique
+          TIMESTAMP=$(date +%s)
+          BRANCH_NAME="${{ steps.update-date.outputs.branch_name }}-${TIMESTAMP}"
+          echo "branch=${BRANCH_NAME}" >> $GITHUB_OUTPUT
+          echo "Using branch name: ${BRANCH_NAME}"
+
+      - name: Create branch and commit changes
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+          git checkout -b ${{ steps.branch-name.outputs.branch }}
+          git add .
+          git commit -m "Update REFERENCE_DATE to ${{ steps.update-date.outputs.next_monday }}"
+          git push -f origin ${{ steps.branch-name.outputs.branch }}
+
       - name: Create Pull Request
         id: create-pr
         uses: actions/github-script@v6
@@ -143,7 +170,6 @@ jobs:
             // Set the output
             core.setOutput('diff_content', diffContent);
 
-  
   send-slack-notification:
     needs: update-reference-date
     if: success()

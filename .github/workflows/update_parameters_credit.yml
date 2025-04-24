@@ -61,3 +61,71 @@ jobs:
               base: 'main'
             });
             console.log(`Pull request created: ${result.data.html_url}`);
+  
+  send-slack-notification:
+    needs: update-reference-date
+    uses: ./.github/workflows/slack-webhook-message.yml
+    with:
+      action_runner: "ubuntu-latest"
+      slack_message: "🔄 PR para atualização dos parâmetros do job criada!"
+      environment: "production"  # Adjust this as needed
+      custom_payload: |
+        {
+          "blocks": [
+            {
+              "type": "header",
+              "text": {
+                "type": "plain_text",
+                "text": "🔄 Reference Date Update PR Created",
+                "emoji": true
+              }
+            },
+            {
+              "type": "section",
+              "text": {
+                "type": "mrkdwn",
+                "text": "*A new PR has been created to update the Reference Date to ${{ needs.update-reference-date.outputs.next_monday }}*"
+              }
+            },
+            {
+              "type": "section",
+              "fields": [
+                {
+                  "type": "mrkdwn",
+                  "text": "*PR Link*\n<${{ needs.update-reference-date.outputs.pr_url }}|View Pull Request #${{ needs.update-reference-date.outputs.pr_number }}>"
+                },
+                {
+                  "type": "mrkdwn",
+                  "text": "*Workflow Run*\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Logs>"
+                }
+              ]
+            },
+            {
+              "type": "section",
+              "fields": [
+                {
+                  "type": "mrkdwn",
+                  "text": "*Repository*\n<${{ github.server_url }}/${{ github.repository }}|${{ github.repository }}>"
+                },
+                {
+                  "type": "mrkdwn",
+                  "text": "*Triggered By*\n${{ github.event_name }}"
+                }
+              ]
+            },
+            {
+              "type": "divider"
+            },
+            {
+              "type": "context",
+              "elements": [
+                {
+                  "type": "mrkdwn",
+                  "text": "This is an automated notification from GitHub Actions."
+                }
+              ]
+            }
+          ]
+        }
+    secrets:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

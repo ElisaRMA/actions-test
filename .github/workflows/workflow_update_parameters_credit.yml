@@ -185,7 +185,7 @@ jobs:
                   "type": "header",
                   "text": {
                     "type": "plain_text",
-                    "text": "🔄 Reference Date Update PR Created",
+                    "text": "🔄 Update RFERENCE_DATE - PR criada",
                     "emoji": true
                   }
                 },
@@ -193,7 +193,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*Uma nova PR foi criada para atualizar o parêmetro REFERENCE_DATE*"
+                    "text": "*Uma nova PR foi criada para atualizar o parâmetro REFERENCE_DATE no job produtivo*"
                   }
                 },
                 {
@@ -213,21 +213,14 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*Changes:*\nChanged REFERENCE_DATE from `${{ needs.update-reference-date.outputs.old_date }}` to `${{ needs.update-reference-date.outputs.next_monday }}`"
+                    "text": "*Mudanças:*\n REFERENCE_DATE modificada de `${{ needs.update-reference-date.outputs.old_date }}` para `${{ needs.update-reference-date.outputs.next_monday }}`"
                   }
                 },
                 {
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*File Changed:*\n`${{ needs.update-reference-date.outputs.file_changed }}`"
-                  }
-                },
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "FYI @mlops"
+                    "text": "Para mais alterações, faça commits na branch `${{ needs.update-reference-date.outputs.branch_name }}`. FYI @mlops"
                   }
                 },                
                 {

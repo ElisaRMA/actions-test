@@ -22,6 +22,7 @@ jobs:
       old_date: ${{ steps.update-date.outputs.old_date }}
       file_changed: ${{ steps.update-date.outputs.file_changed }}
       branch_name: ${{ steps.update-date.outputs.branch_name }}
+      formatted_parameters: ${{ steps.update-date.outputs.formatted_parameters }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -208,6 +209,13 @@ jobs:
                       "text": "*Link para o Job*\n https://stone-dataplatform-production.cloud.databricks.com/jobs/1121459475236441"
                     }
                   ]
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Parâmetros atuais:*\n```\n${{ needs.update-reference-date.outputs.formatted_parameters }}\n```"
+                  }
                 },
                 {
                   "type": "section",

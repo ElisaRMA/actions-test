@@ -21,6 +21,7 @@ jobs:
       next_monday: ${{ steps.update-date.outputs.next_monday }}
       old_date: ${{ steps.update-date.outputs.old_date }}
       file_changed: ${{ steps.update-date.outputs.file_changed }}
+      branch_name: ${{ steps.update-date.outputs.branch_name }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -205,7 +206,7 @@ jobs:
                     },
                     {
                       "type": "mrkdwn",
-                      "text": "*Link para o Job*\n https://stone-dataplatform-production.cloud.databricks.com/jobs/1121459475236441|View Logs>"
+                      "text": "*Link para o Job*\n https://stone-dataplatform-production.cloud.databricks.com/jobs/1121459475236441>"
                     }
                   ]
                 },

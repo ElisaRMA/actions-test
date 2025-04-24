@@ -49,8 +49,7 @@ jobs:
         id: branch-name
         run: |
           # Add timestamp to make branch name unique
-          TIMESTAMP=$(date +%s)
-          BRANCH_NAME="${{ steps.update-date.outputs.branch_name }}-${TIMESTAMP}"
+          BRANCH_NAME="${{ steps.update-date.outputs.branch_name }}"
           echo "branch=${BRANCH_NAME}" >> $GITHUB_OUTPUT
           echo "Using branch name: ${BRANCH_NAME}"
 
@@ -206,7 +205,7 @@ jobs:
                     },
                     {
                       "type": "mrkdwn",
-                      "text": "*Link para o Job*\n https://stone-dataplatform-production.cloud.databricks.com/jobs/1121459475236441>"
+                      "text": "*Link para o Job*\n https://stone-dataplatform-production.cloud.databricks.com/jobs/1121459475236441"
                     }
                   ]
                 },

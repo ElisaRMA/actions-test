@@ -12,14 +12,24 @@ def parse_parameters_to_output(parameters):
     for param in parameters:
         name = param['name']
         value = param['default']
-        # Format the line based on value type
-        if isinstance(value, bool):
-            line = f"{name} = {str(value).lower()}"
-        elif isinstance(value, (int, float)) or (isinstance(value, str) and not value.isdigit() and value not in ['true', 'false']):
-            line = f"{name} = {value}"
+        
+        # Determine if value needs quotes
+        needs_quotes = False
+        if isinstance(value, str):
+            # Don't quote numbers, booleans, or dates in ISO format
+            if (value.lower() not in ['true', 'false'] and 
+                not value.replace('-', '').isdigit() and  # Exclude dates and numbers
+                not value.isdigit()):
+                needs_quotes = True
+        
+        # Format the line
+        if needs_quotes:
+            line = f'{name} = "{value}"'
         else:
-            line = f"{name} = \"{value}\""
+            line = f'{name} = {value}'
+        
         output_lines.append(line)
+    
     return "\n".join(output_lines)
 
 # Calculate next Monday's date

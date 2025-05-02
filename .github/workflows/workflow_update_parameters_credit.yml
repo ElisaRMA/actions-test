@@ -3,7 +3,7 @@ name: Update Reference Date to Next Monday
 on:
   schedule:
     # Runs every Thursday at 9:00 AM UTC
-    - cron: '0 9 * * 4'
+    - cron: 'paused'
   # Optional: Allow manual workflow dispatch
   workflow_dispatch:
 
@@ -171,80 +171,80 @@ jobs:
             // Set the output
             core.setOutput('diff_content', diffContent);
 
-  send-slack-notification:
-    needs: update-reference-date
-    if: success()
-    runs-on: ubuntu-latest
-    steps:
-      - name: Send slack message
-        uses: slackapi/slack-github-action@v1.26.0
-        with:
-          payload: |
-            {
-              "blocks": [
-                {
-                  "type": "header",
-                  "text": {
-                    "type": "plain_text",
-                    "text": "🔄 Update RFERENCE_DATE - PR criada",
-                    "emoji": true
-                  }
-                },
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "*Uma nova PR foi criada para atualizar o parâmetro REFERENCE_DATE no job produtivo*"
-                  }
-                },
-                {
-                  "type": "section",
-                  "fields": [
-                    {
-                      "type": "mrkdwn",
-                      "text": "*Link para PR*\n<${{ needs.update-reference-date.outputs.pr_url }}|View Pull Request #${{ needs.update-reference-date.outputs.pr_number }}>"
-                    },
-                    {
-                      "type": "mrkdwn",
-                      "text": "*Link para o Job*\n https://stone-dataplatform-production.cloud.databricks.com/jobs/1121459475236441"
-                    }
-                  ]
-                },
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "*Parâmetros Atuais:*\n```\n${{ needs.update-reference-date.outputs.slack_safe_parameters }}\n```"
-                  }
-                },
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "*Mudanças:*\n REFERENCE_DATE modificada de `${{ needs.update-reference-date.outputs.old_date }}` para `${{ needs.update-reference-date.outputs.next_monday }}`"
-                  }
-                },
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "Para mais alterações, faça commits na branch `${{ needs.update-reference-date.outputs.branch_name }}`. FYI @mlops"
-                  }
-                },                
-                {
-                  "type": "divider"
-                },
-                {
-                  "type": "context",
-                  "elements": [
-                    {
-                      "type": "mrkdwn",
-                      "text": "This is an automated notification from GitHub Actions."
-                    }
-                  ]
-                }
-              ]
-            }
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+#  send-slack-notification:
+#    needs: update-reference-date
+#    if: success()
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Send slack message
+#        uses: slackapi/slack-github-action@v1.26.0
+#        with:
+#          payload: |
+#            {
+#              "blocks": [
+#                {
+#                  "type": "header",
+#                  "text": {
+#                    "type": "plain_text",
+#                    "text": "🔄 Update RFERENCE_DATE - PR criada",
+#                    "emoji": true
+#                  }
+#                },
+#                {
+#                  "type": "section",
+#                  "text": {
+#                    "type": "mrkdwn",
+#                    "text": "*Uma nova PR foi criada para atualizar o parâmetro REFERENCE_DATE no job produtivo*"
+#                  }
+#                },
+#                {
+#                  "type": "section",
+#                  "fields": [
+#                    {
+#                      "type": "mrkdwn",
+#                      "text": "*Link para PR*\n<${{ needs.update-reference-date.outputs.pr_url }}|View Pull Request #${{ needs.update-reference-date.outputs.pr_number }}>"
+#                    },
+#                    {
+#                      "type": "mrkdwn",
+#                      "text": "*Link para o Job*\n https://stone-dataplatform-production.cloud.databricks.com/jobs/1121459475236441"
+#                    }
+#                  ]
+#                },
+#                {
+#                  "type": "section",
+#                  "text": {
+#                    "type": "mrkdwn",
+#                    "text": "*Parâmetros Atuais:*\n```\n${{ needs.update-reference-date.outputs.slack_safe_parameters }}\n```"
+#                  }
+#                },
+#                {
+#                  "type": "section",
+#                  "text": {
+#                    "type": "mrkdwn",
+#                    "text": "*Mudanças:*\n REFERENCE_DATE modificada de `${{ needs.update-reference-date.outputs.old_date }}` para `${{ needs.update-reference-date.outputs.next_monday }}`"
+#                  }
+#                },
+#                {
+#                  "type": "section",
+#                  "text": {
+#                    "type": "mrkdwn",
+#                    "text": "Para mais alterações, faça commits na branch `${{ needs.update-reference-date.outputs.branch_name }}`. FYI @mlops"
+#                  }
+#                },                
+#                {
+#                  "type": "divider"
+#                },
+#                {
+#                  "type": "context",
+#                  "elements": [
+#                    {
+#                      "type": "mrkdwn",
+#                      "text": "This is an automated notification from GitHub Actions."
+#                    }
+#                  ]
+#                }
+#              ]
+#            }
+#        env:
+#          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+#          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK

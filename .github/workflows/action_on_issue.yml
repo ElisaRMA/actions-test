@@ -36,12 +36,12 @@ jobs:
           else
             echo "This is NOT a valid issue title."
           fi
-
-          # Check for a specific label
-          if [[ "$ISSUE_LABELS" == *"credit"* ]]; then
-            echo "Valid label found: credit"
+          
+          # Check for both specific labels 'credit' and 'job-parameters'
+          if [[ "$ISSUE_LABELS" == *"credit"* ]] && [[ "$ISSUE_LABELS" == *"job-parameters"* ]]; then
+            echo "Valid labels found: credit and job-parameters"
           else
-            echo "No valid label 'credit' found."
+            echo "Required labels ('credit' and 'job-parameters') not found."
           fi
 
           # Parse and print specific parameters in the body if available

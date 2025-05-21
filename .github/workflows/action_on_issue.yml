@@ -28,37 +28,41 @@ jobs:
             echo "Issue title: $ISSUE_TITLE"
             echo "Issue body available: $([ ! -z "$ISSUE_BODY" ] && echo "Yes" || echo "No")"
             
-            # Print issue labels if available
+            # Print issue labels if available - using toJSON to safely handle the data
             echo "Issue labels:"
-            if [[ "${{ github.event.issue.labels }}" != "" ]]; then
-              echo '${{ toJSON(github.event.issue.labels) }}' | jq -r '.[].name' || echo "No labels found or could not parse"
+            LABELS_JSON='${{ toJSON(github.event.issue.labels) }}'
+            if [[ "$LABELS_JSON" != "null" && "$LABELS_JSON" != "" && "$LABELS_JSON" != "[]" ]]; then
+              echo "$LABELS_JSON" | jq -r '.[].name' 2>/dev/null || echo "Could not parse labels"
             else
               echo "No labels found"
             fi
             
             # Parse specific parameters from the issue body
-            if [ ! -z "$ISSUE_BODY" ]; then
+            if [[ ! -z "$ISSUE_BODY" && "$ISSUE_BODY" != "null" ]]; then
               # Extract parameters from checkboxes and inputs
               # Find which option is checked for WRITE_CREDIT_ENGINE
-              if echo "$ISSUE_BODY" | grep -q '- \[x\] true'; then
+              if echo "$ISSUE_BODY" | grep -q '\- \[x\] true'; then
                 WRITE_CREDIT_ENGINE="true"
-              elif echo "$ISSUE_BODY" | grep -q '- \[x\] false'; then
+              elif echo "$ISSUE_BODY" | grep -q '\- \[x\] false'; then
                 WRITE_CREDIT_ENGINE="false"
               else
                 WRITE_CREDIT_ENGINE="not specified"
               fi
               
               # Find which option is checked for INITIAL_DATE_CHECK
-              if echo "$ISSUE_BODY" | grep -q '- \[x\] Sim'; then
+              if echo "$ISSUE_BODY" | grep -q '\- \[x\] Sim'; then
                 INITIAL_DATE_CHECK="Sim"
-              elif echo "$ISSUE_BODY" | grep -q '- \[x\] Não'; then
+              elif echo "$ISSUE_BODY" | grep -q '\- \[x\] Não'; then
                 INITIAL_DATE_CHECK="Não"
               else
                 INITIAL_DATE_CHECK="not specified"
               fi
               
-              # Extract the date value from the input field
-              INITIAL_DATE_SETUP=$(echo "$ISSUE_BODY" | grep -A 2 'Qual a data para o INITIAL_DATE' | tail -n 1 | xargs || echo "not specified")
+              # Extract the date value from the input field - more robust approach
+              INITIAL_DATE_SETUP=$(echo "$ISSUE_BODY" | awk '/Qual a data para o INITIAL_DATE/{getline; getline; print}' | sed 's/^[[:space:]]*//' | sed 's/[[:space:]]*$//' || echo "not specified")
+              if [[ -z "$INITIAL_DATE_SETUP" ]]; then
+                INITIAL_DATE_SETUP="not specified"
+              fi
               
               echo "WRITE_CREDIT_ENGINE: $WRITE_CREDIT_ENGINE"
               echo "INITIAL_DATE_CHECK: $INITIAL_DATE_CHECK"
@@ -93,28 +97,31 @@ jobs:
               echo "$ISSUE_DATA" | jq -r '.[0].labels[].name' || echo "No labels found or could not parse"
               
               # Parse specific parameters from the issue body
-              if [ ! -z "$ISSUE_BODY" ]; then
+              if [[ ! -z "$ISSUE_BODY" && "$ISSUE_BODY" != "null" ]]; then
                 # Extract parameters from checkboxes and inputs
                 # Find which option is checked for WRITE_CREDIT_ENGINE
-                if echo "$ISSUE_BODY" | grep -q '- \[x\] true'; then
+                if echo "$ISSUE_BODY" | grep -q '\- \[x\] true'; then
                   WRITE_CREDIT_ENGINE="true"
-                elif echo "$ISSUE_BODY" | grep -q '- \[x\] false'; then
+                elif echo "$ISSUE_BODY" | grep -q '\- \[x\] false'; then
                   WRITE_CREDIT_ENGINE="false"
                 else
                   WRITE_CREDIT_ENGINE="not specified"
                 fi
                 
                 # Find which option is checked for INITIAL_DATE_CHECK
-                if echo "$ISSUE_BODY" | grep -q '- \[x\] Sim'; then
+                if echo "$ISSUE_BODY" | grep -q '\- \[x\] Sim'; then
                   INITIAL_DATE_CHECK="Sim"
-                elif echo "$ISSUE_BODY" | grep -q '- \[x\] Não'; then
+                elif echo "$ISSUE_BODY" | grep -q '\- \[x\] Não'; then
                   INITIAL_DATE_CHECK="Não"
                 else
                   INITIAL_DATE_CHECK="not specified"
                 fi
                 
-                # Extract the date value from the input field
-                INITIAL_DATE_SETUP=$(echo "$ISSUE_BODY" | grep -A 2 'Qual a data para o INITIAL_DATE' | tail -n 1 | xargs || echo "not specified")
+                # Extract the date value from the input field - more robust approach
+                INITIAL_DATE_SETUP=$(echo "$ISSUE_BODY" | awk '/Qual a data para o INITIAL_DATE/{getline; getline; print}' | sed 's/^[[:space:]]*//' | sed 's/[[:space:]]*$//' || echo "not specified")
+                if [[ -z "$INITIAL_DATE_SETUP" ]]; then
+                  INITIAL_DATE_SETUP="not specified"
+                fi
                 
                 echo "WRITE_CREDIT_ENGINE: $WRITE_CREDIT_ENGINE"
                 echo "INITIAL_DATE_CHECK: $INITIAL_DATE_CHECK"

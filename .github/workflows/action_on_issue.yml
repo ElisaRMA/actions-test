@@ -16,33 +16,57 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
         
-      - name: Check for Issue and Debug Information
+      - name: Get issue details and parse body
         run: |
-          echo "Checking if the trigger is from an issue or manual..."
+          echo "Fetching issue data and debugging..."
 
-          # If triggered by an issue event
-          if [[ "${{ github.event_name }}" == "issues" ]]; then
-            echo "Triggered by an issue event..."
-            ISSUE_TITLE="${{ github.event.issue.title }}"
-            ISSUE_BODY="${{ github.event.issue.body }}"
-            ISSUE_LABELS="${{ github.event.issue.labels }}"
+          # Fetch issue details using the issue trigger or manual dispatch
+          ISSUE_TITLE="${{ github.event.issue.title }}"
+          ISSUE_BODY="${{ github.event.issue.body }}"
+          ISSUE_LABELS="${{ github.event.issue.labels }}"
 
-            # Check if the issue has the required labels and title
-            echo "Issue title: $ISSUE_TITLE"
-            echo "Issue labels: $ISSUE_LABELS"
-            echo "Issue body: $ISSUE_BODY"
+          # Always check the title and labels regardless of trigger
+          echo "Issue title: $ISSUE_TITLE"
+          echo "Issue labels: $ISSUE_LABELS"
+          echo "Issue body: $ISSUE_BODY"
 
-            if [[ "$ISSUE_TITLE" == *"[credit-data-science] Parameters_update"* ]]; then
-              echo "This is a valid issue title."
-            else
-              echo "This is NOT a valid issue title."
-            fi
+          # Check for a valid title
+          if [[ "$ISSUE_TITLE" == *"[credit-data-science] Parameters_update"* ]]; then
+            echo "This is a valid issue title."
+          else
+            echo "This is NOT a valid issue title."
+          fi
 
-            # Check for specific label
-            if [[ "$ISSUE_LABELS" == *"credit"* ]]; then
-              echo "Valid label found: credit"
-            else
-              echo "No valid label 'credit' found."
-            fi
+          # Check for a specific label
+          if [[ "$ISSUE_LABELS" == *"credit"* ]]; then
+            echo "Valid label found: credit"
+          else
+            echo "No valid label 'credit' found."
+          fi
 
-            # Parse and print specific param
+          # Parse and print specific parameters in the body if available
+          WRITE_CREDIT_ENGINE=$(echo "$ISSUE_BODY" | grep -o 'WRITE_CREDIT_ENGINE.*' | sed 's/.*WRITE_CREDIT_ENGINE: //')
+          INITIAL_DATE_CHECK=$(echo "$ISSUE_BODY" | grep -o 'INITIAL_DATE.*' | sed 's/.*INITIAL_DATE: //')
+          INITIAL_DATE_SETUP=$(echo "$ISSUE_BODY" | grep -o 'INITIAL_DATE_SETUP.*' | sed 's/.*INITIAL_DATE_SETUP: //')
+
+          echo "WRITE_CREDIT_ENGINE: $WRITE_CREDIT_ENGINE"
+          echo "INITIAL_DATE_CHECK: $INITIAL_DATE_CHECK"
+          echo "INITIAL_DATE_SETUP: $INITIAL_DATE_SETUP"
+
+          # If triggered manually, we will try to find an issue (could be empty if no matching issue)
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "Manual trigger detected. Attempting to fetch an issue with the required title and labels..."
+
+            # Manually fetch the issue (GitHub API)
+            curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              "https://api.github.com/repos/${{ github.repository }}/issues?state=open" \
+              | jq '.[] | select(.title | contains("[credit-data-science] Parameters_update")) | select(.labels[].name == "credit")' \
+              | jq '.body'  # Outputs the body of the matched issue if found
+          fi
+
+      - name: Log parameters for further analysis
+        run: |
+          echo "Final parameters:"
+          echo "WRITE_CREDIT_ENGINE: $WRITE_CREDIT_ENGINE"
+          echo "INITIAL_DATE_CHECK: $INITIAL_DATE_CHECK"
+          echo "Initial date setup: $INITIAL_DATE_SETUP"

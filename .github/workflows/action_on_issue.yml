@@ -30,7 +30,11 @@ jobs:
             
             # Print issue labels if available
             echo "Issue labels:"
-            echo '${{ toJSON(github.event.issue.labels) }}' | jq -r '.[].name'
+            if [[ "${{ github.event.issue.labels }}" != "" ]]; then
+              echo '${{ toJSON(github.event.issue.labels) }}' | jq -r '.[].name' || echo "No labels found or could not parse"
+            else
+              echo "No labels found"
+            fi
             
             # Parse specific parameters from the issue body
             if [ ! -z "$ISSUE_BODY" ]; then
@@ -86,7 +90,7 @@ jobs:
               
               # Print issue labels
               echo "Issue labels:"
-              echo "$ISSUE_DATA" | jq -r '.[0].labels[].name'
+              echo "$ISSUE_DATA" | jq -r '.[0].labels[].name' || echo "No labels found or could not parse"
               
               # Parse specific parameters from the issue body
               if [ ! -z "$ISSUE_BODY" ]; then

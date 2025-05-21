@@ -29,7 +29,6 @@ body:
   - type: input
     id: initial_date_setup
     attributes:
-      label: "Set INITIAL_DATE"
       description: "Se marcado como true, forneça a data para o parâmetro INITIAL_DATE "
       placeholder: "YYYY-MM-DD"
     validations:

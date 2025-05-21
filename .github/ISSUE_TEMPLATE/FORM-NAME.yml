@@ -19,20 +19,18 @@ body:
     id: initial_date
     attributes:
       label: "Set INITIAL_DATE"
-      description: "Choose whether to set the initial date."
+      description: "Escolha se haverá utilização do parâmetro INITIAL_DATE na task RevenueModel."
       options:
         - label: "true"
         - label: "false"
     validations:
       required: true
-
+      
   - type: input
-    id: initial_date_value
+    id: initial_date
     attributes:
-      label: "Provide INITIAL_DATE"
-      description: "Enter the initial date in YYYY-MM-DD format."
+      label: "Set INITIAL_DATE"
+      description: "Se marcado como true, forneça a data para o parâmetro INITIAL_DATE "
       placeholder: "YYYY-MM-DD"
     validations:
       required: false
-    condition: |
-      if initial_date == 'true'

@@ -5,40 +5,43 @@ on:
   issues:
     types: [opened, edited]
 
+  # Allow manual trigger via the GitHub UI, no inputs required
   workflow_dispatch:
 
 jobs:
   debug-parameters:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-        
+
+      - name: Debug GitHub event data
+        run: |
+          echo "GitHub Event Data (Raw):"
+          echo "${{ toJson(github.event) }}"  # Print the raw GitHub event data to see what's inside
+
       - name: Get issue details and print labels
         run: |
           echo "Fetching issue data and debugging..."
-
-          # Fetch issue details using the issue trigger
-          ISSUE_TITLE="${{ github.event.issue.title }}"
-          ISSUE_BODY="${{ github.event.issue.body }}"
-          ISSUE_LABELS="${{ github.event.issue.labels }}"
-
-          # Always check the title and labels
-          echo "Issue title: $ISSUE_TITLE"
+          
+          # Debug: Check if issue title, body, and labels are correctly populated
+          echo "Issue title: ${{ github.event.issue.title }}"
+          echo "Issue body: ${{ github.event.issue.body }}"
+          
+          # Get the labels (print the raw label data first to see if it's there)
+          echo "Raw issue labels data: ${{ github.event.issue.labels }}"
           
           # Print the labels as an array (only the label names)
           echo "Issue labels as an array (only names):"
-          for label in $(echo "$ISSUE_LABELS" | jq -r '.[].name'); do
+          for label in $(echo "${{ github.event.issue.labels }}" | jq -r '.[].name'); do
             echo "Label: $label"
           done
 
-          echo "Issue body: $ISSUE_BODY"
-
           # Parse and print specific parameters in the body if available
-          WRITE_CREDIT_ENGINE=$(echo "$ISSUE_BODY" | grep -o 'WRITE_CREDIT_ENGINE.*' | sed 's/.*WRITE_CREDIT_ENGINE: //')
-          INITIAL_DATE_CHECK=$(echo "$ISSUE_BODY" | grep -o 'INITIAL_DATE.*' | sed 's/.*INITIAL_DATE: //')
-          INITIAL_DATE_SETUP=$(echo "$ISSUE_BODY" | grep -o 'INITIAL_DATE_SETUP.*' | sed 's/.*INITIAL_DATE_SETUP: //')
+          WRITE_CREDIT_ENGINE=$(echo "${{ github.event.issue.body }}" | grep -o 'WRITE_CREDIT_ENGINE.*' | sed 's/.*WRITE_CREDIT_ENGINE: //')
+          INITIAL_DATE_CHECK=$(echo "${{ github.event.issue.body }}" | grep -o 'INITIAL_DATE.*' | sed 's/.*INITIAL_DATE: //')
+          INITIAL_DATE_SETUP=$(echo "${{ github.event.issue.body }}" | grep -o 'INITIAL_DATE_SETUP.*' | sed 's/.*INITIAL_DATE_SETUP: //')
 
           echo "WRITE_CREDIT_ENGINE: $WRITE_CREDIT_ENGINE"
           echo "INITIAL_DATE_CHECK: $INITIAL_DATE_CHECK"

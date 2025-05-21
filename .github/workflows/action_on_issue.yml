@@ -1,7 +1,30 @@
 name: ⚙️ Atualização de parâmetros do job credit_data_science-prod-v1-aws
 on:
-  issues:
-    types: [opened, edited]
+  workflow_dispatch: # This allows manual trigger via the GitHub UI
+    inputs:
+      write_credit_engine:
+        description: 'Escolha se ocorrerá ou não execução da task RatingUnifier (true or false)'
+        required: true
+        default: 'true'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+      
+      initial_date_check:
+        description: 'Escolha se haverá utilização do parâmetro INITIAL_DATE na task RevenueModel (Sim or Não)'
+        required: true
+        default: 'Sim'
+        type: choice
+        options:
+          - 'Sim'
+          - 'Não'
+      
+      initial_date_setup:
+        description: 'Se marcado como "Sim", forneça a data para o parâmetro INITIAL_DATE'
+        required: false
+        default: ''
+        type: string
 
 jobs:
   debug-parameters:
@@ -13,41 +36,19 @@ jobs:
         
       - name: Display Debug Information
         run: |
-          echo "Debugging the issue body..."
-          echo "Title: ${{ github.event.issue.title }}"
-          echo "Labels: ${{ github.event.issue.labels }}"
-          echo "Body: ${{ github.event.issue.body }}"
+          echo "Debugging the manual trigger parameters..."
+          echo "write_credit_engine: ${{ github.event.inputs.write_credit_engine }}"
+          echo "initial_date_check: ${{ github.event.inputs.initial_date_check }}"
+          echo "initial_date_setup: ${{ github.event.inputs.initial_date_setup }}"
           
-          echo "Checking for checkboxes and input values in the body..."
-          if [[ "${{ github.event.issue.body }}" == *"WRITE_CREDIT_ENGINE"* ]]; then
-            echo "Found WRITE_CREDIT_ENGINE checkbox"
-          fi
-          
-          if [[ "${{ github.event.issue.body }}" == *"INITIAL_DATE neessário?"* ]]; then
-            echo "Found INITIAL_DATE checkbox"
-          fi
-          
-          if [[ "${{ github.event.issue.body }}" == *"Qual a data para o INITIAL_DATE?"* ]]; then
-            echo "Found INITIAL_DATE input"
-          fi
-          
-      - name: Debugging the issue's body content
+      - name: Debugging the manual trigger inputs
         run: |
-          echo "Full issue body content:"
-          echo "${{ github.event.issue.body }}"
-          
-      - name: Parse issue body (for specific data)
-        run: |
-          echo "Parsing parameters from the issue body..."
-          WRITE_CREDIT_ENGINE=$(echo "${{ github.event.issue.body }}" | grep -o 'WRITE_CREDIT_ENGINE.*' | sed 's/.*WRITE_CREDIT_ENGINE: //')
-          INITIAL_DATE_CHECK=$(echo "${{ github.event.issue.body }}" | grep -o 'INITIAL_DATE.*' | sed 's/.*INITIAL_DATE: //')
-          
-          echo "WRITE_CREDIT_ENGINE value: $WRITE_CREDIT_ENGINE"
-          echo "INITIAL_DATE_CHECK value: $INITIAL_DATE_CHECK"
+          echo "Full manual input values:"
+          echo "write_credit_engine: ${{ github.event.inputs.write_credit_engine }}"
+          echo "initial_date_check: ${{ github.event.inputs.initial_date_check }}"
+          echo "initial_date_setup: ${{ github.event.inputs.initial_date_setup }}"
           
       - name: Log parameters for further analysis
         run: |
           echo "Final parameters:"
-          echo "WRITE_CREDIT_ENGINE: $WRITE_CREDIT_ENGINE"
-          echo "INITIAL_DATE_CHECK: $INITIAL_DATE_CHECK"
-          echo "Initial date setup: $INITIAL_DATE_SETUP"
+          echo "WRITE_CREDIT_ENGINE: ${{ github.event.inputs.write_credit_engine }}"

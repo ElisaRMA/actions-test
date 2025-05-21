@@ -1,5 +1,5 @@
 name: ⚙️ Atualização de parâmetros do job credit_data_science-prod-v1-aws
-description: Forneça os parâmetros adicionais do job para a próxima execução
+description: Forneça os parâmetros adicionais do job para a próxima execução, caso necessário.
 title: "[credit-data-science] Parameters_update"
 labels: ["enhancement"]
 
@@ -30,7 +30,7 @@ body:
     id: initial_date_setup
     attributes:
       label: "Qual a data para o INITIAL_DATE?"
-      description: "Se marcado como true, forneça a data para o parâmetro INITIAL_DATE "
+      description: "Se marcado como 'Sim', forneça a data para o parâmetro INITIAL_DATE "
       placeholder: "YYYY-MM-DD"
     validations:
       required: false

@@ -36,6 +36,17 @@ jobs:
 
           echo "Issue body: $ISSUE_BODY"
 
+          if [ ! -z "$ISSUE_BODY" ]; then
+              # Extract parameters from checkboxes and inputs
+              # Find which option is checked for WRITE_CREDIT_ENGINE
+              if echo "$ISSUE_BODY" | grep -q '- \[x\] true'; then
+                WRITE_CREDIT_ENGINE="true"
+              elif echo "$ISSUE_BODY" | grep -q '- \[x\] false'; then
+                WRITE_CREDIT_ENGINE="false"
+              else
+                WRITE_CREDIT_ENGINE="not specified"
+              fi
+
           # Parse and print specific parameters in the body if available
           WRITE_CREDIT_ENGINE=$(echo "$ISSUE_BODY" | grep -o 'WRITE_CREDIT_ENGINE.*' | sed 's/.*WRITE_CREDIT_ENGINE: //')
           INITIAL_DATE_CHECK=$(echo "$ISSUE_BODY" | grep -o 'INITIAL_DATE.*' | sed 's/.*INITIAL_DATE: //')

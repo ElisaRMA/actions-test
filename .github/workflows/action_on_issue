@@ -1,0 +1,53 @@
+name: ⚙️ Atualização de parâmetros do job credit_data_science-prod-v1-aws
+on:
+  issues:
+    types: [opened, edited]
+
+jobs:
+  debug-parameters:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        
+      - name: Display Debug Information
+        run: |
+          echo "Debugging the issue body..."
+          echo "Title: ${{ github.event.issue.title }}"
+          echo "Labels: ${{ github.event.issue.labels }}"
+          echo "Body: ${{ github.event.issue.body }}"
+          
+          echo "Checking for checkboxes and input values in the body..."
+          if [[ "${{ github.event.issue.body }}" == *"WRITE_CREDIT_ENGINE"* ]]; then
+            echo "Found WRITE_CREDIT_ENGINE checkbox"
+          fi
+          
+          if [[ "${{ github.event.issue.body }}" == *"INITIAL_DATE neessário?"* ]]; then
+            echo "Found INITIAL_DATE checkbox"
+          fi
+          
+          if [[ "${{ github.event.issue.body }}" == *"Qual a data para o INITIAL_DATE?"* ]]; then
+            echo "Found INITIAL_DATE input"
+          fi
+          
+      - name: Debugging the issue's body content
+        run: |
+          echo "Full issue body content:"
+          echo "${{ github.event.issue.body }}"
+          
+      - name: Parse issue body (for specific data)
+        run: |
+          echo "Parsing parameters from the issue body..."
+          WRITE_CREDIT_ENGINE=$(echo "${{ github.event.issue.body }}" | grep -o 'WRITE_CREDIT_ENGINE.*' | sed 's/.*WRITE_CREDIT_ENGINE: //')
+          INITIAL_DATE_CHECK=$(echo "${{ github.event.issue.body }}" | grep -o 'INITIAL_DATE.*' | sed 's/.*INITIAL_DATE: //')
+          
+          echo "WRITE_CREDIT_ENGINE value: $WRITE_CREDIT_ENGINE"
+          echo "INITIAL_DATE_CHECK value: $INITIAL_DATE_CHECK"
+          
+      - name: Log parameters for further analysis
+        run: |
+          echo "Final parameters:"
+          echo "WRITE_CREDIT_ENGINE: $WRITE_CREDIT_ENGINE"
+          echo "INITIAL_DATE_CHECK: $INITIAL_DATE_CHECK"
+          echo "Initial date setup: $INITIAL_DATE_SETUP"

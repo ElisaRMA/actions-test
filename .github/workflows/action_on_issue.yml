@@ -16,7 +16,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
         
-      - name: Get issue details and parse body
+      - name: Get issue details and print labels
         run: |
           echo "Fetching issue data and debugging..."
 
@@ -27,22 +27,17 @@ jobs:
 
           # Always check the title and labels regardless of trigger
           echo "Issue title: $ISSUE_TITLE"
-          echo "Issue labels: $ISSUE_LABELS"
-          echo "Issue body: $ISSUE_BODY"
-
-          # Check for a valid title
-          if [[ "$ISSUE_TITLE" == *"[credit-data-science] Parameters_update"* ]]; then
-            echo "This is a valid issue title."
-          else
-            echo "This is NOT a valid issue title."
-          fi
           
-          # Check for both specific labels 'credit' and 'job-parameters'
-          if [[ "$ISSUE_LABELS" == *"credit"* ]] && [[ "$ISSUE_LABELS" == *"job-parameters"* ]]; then
-            echo "Valid labels found: credit and job-parameters"
-          else
-            echo "Required labels ('credit' and 'job-parameters') not found."
-          fi
+          # Print the labels as an array
+          echo "Issue labels as an array: ${ISSUE_LABELS}"
+
+          # Print each label separately
+          echo "Printing each label:"
+          for label in $(echo "$ISSUE_LABELS" | jq -r '.[].name'); do
+            echo "Label: $label"
+          done
+
+          echo "Issue body: $ISSUE_BODY"
 
           # Parse and print specific parameters in the body if available
           WRITE_CREDIT_ENGINE=$(echo "$ISSUE_BODY" | grep -o 'WRITE_CREDIT_ENGINE.*' | sed 's/.*WRITE_CREDIT_ENGINE: //')
@@ -60,8 +55,8 @@ jobs:
             # Manually fetch the issue (GitHub API)
             curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
               "https://api.github.com/repos/${{ github.repository }}/issues?state=open" \
-              | jq '.[] | select(.title | contains("[credit-data-science] Parameters_update")) | select(.labels[].name == "credit")' \
-              | jq '.body'  # Outputs the body of the matched issue if found
+              | jq '.[] | select(.title | contains("[credit-data-science] Parameters_update"))' \
+              | jq '.labels'  # Outputs the labels of the matched issue if found
           fi
 
       - name: Log parameters for further analysis

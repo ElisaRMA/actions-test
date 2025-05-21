@@ -28,11 +28,8 @@ jobs:
           # Always check the title and labels regardless of trigger
           echo "Issue title: $ISSUE_TITLE"
           
-          # Print the labels as an array
-          echo "Issue labels as an array: ${ISSUE_LABELS}"
-
-          # Print each label separately
-          echo "Printing each label:"
+          # Print the labels as an array (extract only the label names)
+          echo "Issue labels as an array (only names):"
           for label in $(echo "$ISSUE_LABELS" | jq -r '.[].name'); do
             echo "Label: $label"
           done
@@ -56,7 +53,7 @@ jobs:
             curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
               "https://api.github.com/repos/${{ github.repository }}/issues?state=open" \
               | jq '.[] | select(.title | contains("[credit-data-science] Parameters_update"))' \
-              | jq '.labels'  # Outputs the labels of the matched issue if found
+              | jq '.labels[].name'  # Outputs only the label names
           fi
 
       - name: Log parameters for further analysis

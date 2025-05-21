@@ -14,12 +14,24 @@ body:
         - label: "false"
     validations:
       required: true
-
-  - type: input
+  - type: checkboxes
     id: initial_date
     attributes:
-      label: "INITIAL_DATE"
-      description: "Escolha se a próxima execução usará o parâmetro INITIAL_DATE na task RevenueModel"
+      label: "Set INITIAL_DATE"
+      description: "Choose whether to set the initial date."
+      options:
+        - label: "true"
+        - label: "false"
+    validations:
+      required: true
+
+  - type: input
+    id: initial_date_value
+    attributes:
+      label: "Provide INITIAL_DATE"
+      description: "Enter the initial date in YYYY-MM-DD format."
       placeholder: "YYYY-MM-DD"
     validations:
       required: false
+    condition: |
+      if initial_date == 'true'

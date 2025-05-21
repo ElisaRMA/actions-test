@@ -3,8 +3,7 @@ on:
   # Trigger when an issue is opened or edited
   issues:
     types: [opened, edited]
-  # Allow manual trigger via the GitHub UI, no inputs required
-  workflow_dispatch:
+
 jobs:
   debug-parameters:
     runs-on: ubuntu-latest
@@ -73,78 +72,4 @@ jobs:
             
           else
             echo "Workflow triggered manually via workflow_dispatch"
-            
-            # For manual dispatch, query the most recent matching issue using GitHub API
-            echo "Fetching the most recent [credit-data-science] Parameters_update issue..."
-            
-            ISSUE_DATA=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-              "https://api.github.com/repos/${{ github.repository }}/issues?state=open&labels=credit,job-parameters&per_page=1")
-            
-            # Check if we found an issue
-            ISSUE_COUNT=$(echo "$ISSUE_DATA" | jq '. | length')
-            
-            if [[ "$ISSUE_COUNT" -gt 0 ]]; then
-              # Extract information from the issue
-              ISSUE_TITLE=$(echo "$ISSUE_DATA" | jq -r '.[0].title')
-              ISSUE_BODY=$(echo "$ISSUE_DATA" | jq -r '.[0].body')
-              ISSUE_NUMBER=$(echo "$ISSUE_DATA" | jq -r '.[0].number')
-              
-              echo "Found issue #$ISSUE_NUMBER with title: $ISSUE_TITLE"
-              echo "Issue body available: $([ ! -z "$ISSUE_BODY" ] && echo "Yes" || echo "No")"
-              
-              # Print issue labels
-              echo "Issue labels:"
-              echo "$ISSUE_DATA" | jq -r '.[0].labels[].name' || echo "No labels found or could not parse"
-              
-              # Parse specific parameters from the issue body
-              if [[ ! -z "$ISSUE_BODY" && "$ISSUE_BODY" != "null" ]]; then
-                # Extract parameters from checkboxes and inputs
-                # Find which option is checked for WRITE_CREDIT_ENGINE
-                if echo "$ISSUE_BODY" | grep -q '\- \[x\] true'; then
-                  WRITE_CREDIT_ENGINE="true"
-                elif echo "$ISSUE_BODY" | grep -q '\- \[x\] false'; then
-                  WRITE_CREDIT_ENGINE="false"
-                else
-                  WRITE_CREDIT_ENGINE="not specified"
-                fi
-                
-                # Find which option is checked for INITIAL_DATE_CHECK
-                if echo "$ISSUE_BODY" | grep -q '\- \[x\] Sim'; then
-                  INITIAL_DATE_CHECK="Sim"
-                elif echo "$ISSUE_BODY" | grep -q '\- \[x\] Não'; then
-                  INITIAL_DATE_CHECK="Não"
-                else
-                  INITIAL_DATE_CHECK="not specified"
-                fi
-                
-                # Extract the date value from the input field - more robust approach
-                INITIAL_DATE_SETUP=$(echo "$ISSUE_BODY" | awk '/Qual a data para o INITIAL_DATE/{getline; getline; print}' | sed 's/^[[:space:]]*//' | sed 's/[[:space:]]*$//' || echo "not specified")
-                if [[ -z "$INITIAL_DATE_SETUP" ]]; then
-                  INITIAL_DATE_SETUP="not specified"
-                fi
-                
-                echo "WRITE_CREDIT_ENGINE: $WRITE_CREDIT_ENGINE"
-                echo "INITIAL_DATE_CHECK: $INITIAL_DATE_CHECK"
-                echo "INITIAL_DATE_SETUP: $INITIAL_DATE_SETUP"
-              else
-                echo "Issue body is empty or not in expected format"
-              fi
-              
-            else
-              echo "No matching issues found with the required labels."
-            fi
-          fi
           
-      - name: Log final parameters
-        run: |
-          echo "Final parameters for job execution:"
-          echo "WRITE_CREDIT_ENGINE: ${WRITE_CREDIT_ENGINE:-not set}"
-          echo "INITIAL_DATE_CHECK: ${INITIAL_DATE_CHECK:-not set}"
-          echo "INITIAL_DATE_SETUP: ${INITIAL_DATE_SETUP:-not set}"
-          
-          # Set outputs for subsequent steps if needed
-          echo "write_credit_engine=${WRITE_CREDIT_ENGINE:-false}" >> $GITHUB_ENV
-          
-          if [[ "${INITIAL_DATE_CHECK:-}" == "Sim" && ! -z "${INITIAL_DATE_SETUP:-}" ]]; then
-            echo "initial_date=${INITIAL_DATE_SETUP}" >> $GITHUB_ENV
-          fi

@@ -16,7 +16,7 @@ body:
       required: true
       
   - type: checkboxes
-    id: initial_date
+    id: initial_date_check
     attributes:
       label: "Set INITIAL_DATE"
       description: "Escolha se haverá utilização do parâmetro INITIAL_DATE na task RevenueModel."
@@ -27,7 +27,7 @@ body:
       required: true
       
   - type: input
-    id: initial_date
+    id: initial_date_setup
     attributes:
       label: "Set INITIAL_DATE"
       description: "Se marcado como true, forneça a data para o parâmetro INITIAL_DATE "

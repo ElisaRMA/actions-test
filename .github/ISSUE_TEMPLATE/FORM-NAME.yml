@@ -1,7 +1,7 @@
 name: ⚙️ Atualização de parâmetros do job credit_data_science-prod-v1-aws
 description: Forneça os parâmetros adicionais do job para a próxima execução
 title: "[credit-data-science] Parameters_update"
-labels: ["credit", "parameters-job"]
+labels: ["enhancement"]
 
 body:
   - type: checkboxes
@@ -21,8 +21,8 @@ body:
       label: "INITIAL_DATE neessário?"
       description: "Escolha se haverá utilização do parâmetro INITIAL_DATE na task RevenueModel."
       options:
-        - label: "true"
-        - label: "false"
+        - label: "Sim"
+        - label: "Não"
     validations:
       required: true
       

@@ -5,9 +5,6 @@ on:
   issues:
     types: [opened, edited]
 
-  # Allow manual trigger via the GitHub UI, no inputs required
-  workflow_dispatch:
-
 jobs:
   debug-parameters:
     runs-on: ubuntu-latest
@@ -20,15 +17,15 @@ jobs:
         run: |
           echo "Fetching issue data and debugging..."
 
-          # Fetch issue details using the issue trigger or manual dispatch
+          # Fetch issue details using the issue trigger
           ISSUE_TITLE="${{ github.event.issue.title }}"
           ISSUE_BODY="${{ github.event.issue.body }}"
           ISSUE_LABELS="${{ github.event.issue.labels }}"
 
-          # Always check the title and labels regardless of trigger
+          # Always check the title and labels
           echo "Issue title: $ISSUE_TITLE"
           
-          # Print the labels as an array (extract only the label names)
+          # Print the labels as an array (only the label names)
           echo "Issue labels as an array (only names):"
           for label in $(echo "$ISSUE_LABELS" | jq -r '.[].name'); do
             echo "Label: $label"
@@ -44,17 +41,6 @@ jobs:
           echo "WRITE_CREDIT_ENGINE: $WRITE_CREDIT_ENGINE"
           echo "INITIAL_DATE_CHECK: $INITIAL_DATE_CHECK"
           echo "INITIAL_DATE_SETUP: $INITIAL_DATE_SETUP"
-
-          # If triggered manually, we will try to find an issue (could be empty if no matching issue)
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            echo "Manual trigger detected. Attempting to fetch an issue with the required title and labels..."
-
-            # Manually fetch the issue (GitHub API)
-            curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-              "https://api.github.com/repos/${{ github.repository }}/issues?state=open" \
-              | jq '.[] | select(.title | contains("[credit-data-science] Parameters_update"))' \
-              | jq '.labels[].name'  # Outputs only the label names
-          fi
 
       - name: Log parameters for further analysis
         run: |

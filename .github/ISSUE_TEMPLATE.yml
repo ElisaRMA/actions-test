@@ -1,0 +1,26 @@
+name: Update YAML Configuration
+description: Provide details to update the YAML configuration file.
+title: "[YAML Update] - Update configuration"
+labels: ["enhancement", "needs-review"]
+assignees: []
+
+body:
+  - type: checkboxes
+    id: write_credit_engine
+    attributes:
+      label: "Set WRITE_CREDIT_ENGINE"
+      description: "Choose whether to enable or disable the credit engine."
+      options:
+        - label: "true"
+        - label: "false"
+    validations:
+      required: true
+
+  - type: input
+    id: initial_date
+    attributes:
+      label: "Set INITIAL_DATE"
+      description: "Provide the initial date in YYYY-MM-DD format."
+      placeholder: "YYYY-MM-DD"
+    validations:
+      required: false

@@ -5,6 +5,8 @@ on:
   issues:
     types: [opened, edited]
 
+  workflow_dispatch:
+
 jobs:
   debug-parameters:
     runs-on: ubuntu-latest

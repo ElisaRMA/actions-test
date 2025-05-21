@@ -1,7 +1,7 @@
 name: ⚙️ Atualização de parâmetros do job credit_data_science-prod-v1-aws
 description: Forneça os parâmetros adicionais do job para a próxima execução, caso necessário.
 title: "[credit-data-science] Parameters_update"
-labels: ["enhancement"]
+labels: ["credit", "job-template"]
 
 body:
   - type: checkboxes

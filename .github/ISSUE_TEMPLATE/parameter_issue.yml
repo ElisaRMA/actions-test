@@ -18,8 +18,8 @@ body:
   - type: checkboxes
     id: initial_date_check
     attributes:
-      label: "INITIAL_DATE neessário?"
-      description: "Utilizar o parametro initial date RevenueModel?"
+      label: "INITIAL_DATE"
+      description: "Utilizar o parametro INITIAL_DATE na task RevenueModel?"
       options:
         - label: "Sim"
         - label: "Não"

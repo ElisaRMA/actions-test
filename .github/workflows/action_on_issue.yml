@@ -15,13 +15,16 @@ jobs:
         
       - name: Get issue details and print labels
         run: |
+              # Store the issue body in a variable for easier handling
+              ISSUE_BODY="${{ github.event.issue.body }}"
+              
               # Debug: Print the full issue body
               echo "=== FULL ISSUE BODY ==="
-              echo "${{ github.event.issue.body }}"
+              echo "$ISSUE_BODY"
               echo "======================"
               
               # Extract WRITE_CREDIT_ENGINE value
-              if echo "${{ github.event.issue.body }}" | grep -q '^- \[x\] Haverá a execução da task RatingUnifier? (Marque em caso afirmativo)'; then
+              if echo "$ISSUE_BODY" | grep -q '\- \[x\] Haverá a execução da task RatingUnifier? (Marque em caso afirmativo)'; then
                 WRITE_CREDIT_ENGINE="true"
                 echo "DEBUG: WRITE_CREDIT_ENGINE checkbox is checked"
               else
@@ -29,13 +32,18 @@ jobs:
                 echo "DEBUG: WRITE_CREDIT_ENGINE checkbox is NOT checked"
               fi
               
-            
               # Check INITIAL_DATE checkbox
-              if echo "${ISSUE_BODY}" | grep -q '^- \[x\] Utilizar o parametro INITIAL_DATE na task RevenueModel? (Marque em caso afirmativo)'; then
+              if echo "$ISSUE_BODY" | grep -q '\- \[x\] Utilizar o parametro INITIAL_DATE na task RevenueModel? (Marque em caso afirmativo)'; then
                 INITIAL_DATE_CHECK="true"
                 echo "DEBUG: INITIAL_DATE checkbox is checked - attempting to extract date"
                 
-                INITIAL_DATE_SETUP=$(echo "${{ github.event.issue.body }}" | awk '/Qual a data para o INITIAL_DATE/{getline; getline; print}' | sed 's/^[[:space:]]*//' | sed 's/[[:space:]]*$//')
+                # Extract the date - using a more robust approach
+                INITIAL_DATE_SETUP=$(echo "$ISSUE_BODY" | awk '/Qual a data para o INITIAL_DATE\?/{
+                  # Skip the current line and the next empty line, then get the date
+                  getline; 
+                  getline; 
+                  print $0
+                }' | sed 's/^[[:space:]]*//' | sed 's/[[:space:]]*$//')
                 
                 echo "DEBUG: Raw extracted date: '${INITIAL_DATE_SETUP}'"
                 
@@ -49,6 +57,7 @@ jobs:
               else
                 echo "DEBUG: INITIAL_DATE checkbox is NOT checked - skipping date extraction"
                 INITIAL_DATE_CHECK="false"
+                INITIAL_DATE_SETUP=""
               fi
               
               # Output the values

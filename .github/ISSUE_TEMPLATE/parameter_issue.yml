@@ -10,7 +10,7 @@ body:
       label: "WRITE_CREDIT_ENGINE"
       description: "Haverá a execução da task RatingUnifier?"
       options:
-        - label: 
+        - label:""
           required: true
       
   - type: dropdown

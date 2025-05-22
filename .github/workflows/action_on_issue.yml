@@ -15,28 +15,47 @@ jobs:
         
       - name: Get issue details and print labels
         run: |
+              # Debug: Print the full issue body to verify content
+              echo "=== FULL ISSUE BODY ==="
+              echo "${{ github.event.issue.body }}"
+              echo "======================"
+              
               # Extract WRITE_CREDIT_ENGINE value
               if echo "${{ github.event.issue.body }}" | grep -q 'Haverá a execução da task RatingUnifier.*- \[x\]'; then
                 WRITE_CREDIT_ENGINE="true"
+                echo "DEBUG: WRITE_CREDIT_ENGINE checkbox is checked"
               else
-                WRITE_CREDIT_ENGINE="false" # Default value if not checked
+                WRITE_CREDIT_ENGINE="false"
+                echo "DEBUG: WRITE_CREDIT_ENGINE checkbox is NOT checked"
               fi
               
               # Extract INITIAL_DATE_CHECK and INITIAL_DATE_SETUP
               if echo "${{ github.event.issue.body }}" | grep -q 'Utilizar o parametro INITIAL_DATE.*- \[x\]'; then
                 INITIAL_DATE_CHECK="true"
-                # Extract the date line after "Qual a data para o INITIAL_DATE?"
-                INITIAL_DATE_SETUP=$(echo "${{ github.event.issue.body }}" | grep -A1 'Qual a data para o INITIAL_DATE' | tail -n1 | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+                echo "DEBUG: INITIAL_DATE checkbox is checked"
                 
-                # Validate date format (YYYY-MM-DD)
-                if [[ ! "$INITIAL_DATE_SETUP" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
-                  echo "::warning::Invalid date format for INITIAL_DATE_SETUP: $INITIAL_DATE_SETUP"
+                # First try: Extract date using pattern matching
+                INITIAL_DATE_SETUP=$(echo "${{ github.event.issue.body }}" | grep -oP 'Qual a data para o INITIAL_DATE\?\s*\K\d{4}-\d{2}-\d{2}')
+                echo "DEBUG: First extraction attempt: '$INITIAL_DATE_SETUP'"
+                
+                # Fallback method if first attempt failed
+                if [ -z "$INITIAL_DATE_SETUP" ]; then
+                  INITIAL_DATE_SETUP=$(echo "${{ github.event.issue.body }}" | grep -A1 'Qual a data para o INITIAL_DATE' | tail -n1 | grep -Eo '[0-9]{4}-[0-9]{2}-[0-9]{2}')
+                  echo "DEBUG: Fallback extraction attempt: '$INITIAL_DATE_SETUP'"
+                fi
+              
+                # Validate date format
+                if [[ "$INITIAL_DATE_SETUP" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
+                  echo "DEBUG: Valid date format found: $INITIAL_DATE_SETUP"
+                else
+                  echo "::warning::Invalid date format for INITIAL_DATE_SETUP: '$INITIAL_DATE_SETUP'"
                   INITIAL_DATE_CHECK="false"
                   INITIAL_DATE_SETUP=""
                 fi
               else
                 INITIAL_DATE_CHECK="false"
                 INITIAL_DATE_SETUP=""
+                echo "DEBUG: INITIAL_DATE checkbox is NOT checked"
               fi
               
               # Output the values
@@ -44,7 +63,7 @@ jobs:
               echo "INITIAL_DATE_CHECK=$INITIAL_DATE_CHECK" >> $GITHUB_OUTPUT
               echo "INITIAL_DATE_SETUP=$INITIAL_DATE_SETUP" >> $GITHUB_OUTPUT
               
-              echo "Parsed values:"
+              echo "=== FINAL PARSED VALUES ==="
               echo "WRITE_CREDIT_ENGINE: $WRITE_CREDIT_ENGINE"
               echo "INITIAL_DATE_CHECK: $INITIAL_DATE_CHECK"
               echo "INITIAL_DATE_SETUP: $INITIAL_DATE_SETUP"

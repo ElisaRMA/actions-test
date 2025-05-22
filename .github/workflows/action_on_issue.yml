@@ -38,13 +38,7 @@ jobs:
                 INITIAL_DATE_CHECK="true"
                 echo "DEBUG: INITIAL_DATE checkbox is checked - attempting to extract date"
                 
-                # Extract the date using more precise pattern matching
-                INITIAL_DATE_SETUP=$(echo "${ISSUE_BODY}" | grep -oP '### Qual a data para o INITIAL_DATE\?\s*\K\S+')
-                
-                # Alternative method if the above fails
-                if [ -z "${INITIAL_DATE_SETUP}" ]; then
-                  INITIAL_DATE_SETUP=$(echo "${ISSUE_BODY}" | awk '/### Qual a data para o INITIAL_DATE\?/{getline; print}' | xargs)
-                fi
+                INITIAL_DATE_SETUP=$(echo "${{ github.event.issue.body }}" | awk '/Qual a data para o INITIAL_DATE/{getline; getline; print}' | sed 's/^[[:space:]]*//' | sed 's/[[:space:]]*$//')
                 
                 echo "DEBUG: Raw extracted date: '${INITIAL_DATE_SETUP}'"
                 

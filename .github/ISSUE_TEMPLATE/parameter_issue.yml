@@ -4,14 +4,16 @@ title: "[credit-data-science] Parameters_update"
 labels: ["credit", "job-parameters"]
 
 body:
-  - type: checkboxes
+  - type: dropdown
     id: write_credit_engine
     attributes:
       label: "WRITE_CREDIT_ENGINE"
       description: "Haverá a execução da task RatingUnifier?"
       options:
-        - label: 
-          required: true
+        - "Sim (WRITE_CREDIT_ENGINE = true)"
+        - "Não (WRITE_CREDIT_ENGINE = false)"
+      validations:
+        required: true
       
   - type: dropdown
     id: initial_date_check

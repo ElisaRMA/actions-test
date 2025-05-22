@@ -29,10 +29,7 @@ jobs:
                 echo "DEBUG: WRITE_CREDIT_ENGINE checkbox is NOT checked"
               fi
               
-              # Initialize INITIAL_DATE variables
-              INITIAL_DATE_CHECK="false"
-              INITIAL_DATE_SETUP=""
-              
+            
               # Check INITIAL_DATE checkbox
               if echo "${ISSUE_BODY}" | grep -q '^- \[x\] Utilizar o parametro INITIAL_DATE na task RevenueModel? (Marque em caso afirmativo)'; then
                 INITIAL_DATE_CHECK="true"
@@ -47,10 +44,11 @@ jobs:
                   echo "DEBUG: Valid date found: ${INITIAL_DATE_SETUP}"
                 else
                   echo "::warning::Invalid date format extracted: '${INITIAL_DATE_SETUP}'"
-                  INITIAL_DATE_SETUP=""
+                  INITIAL_DATE_SETUP="invalid"
                 fi
               else
                 echo "DEBUG: INITIAL_DATE checkbox is NOT checked - skipping date extraction"
+                INITIAL_DATE_CHECK="false"
               fi
               
               # Output the values

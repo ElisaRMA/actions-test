@@ -15,122 +15,36 @@ jobs:
         
       - name: Get issue details and print labels
         run: |
-          echo "Fetching issue data and debugging..."
-          
-          # Check which event triggered the workflow
-          if [[ "${{ github.event_name }}" == "issues" ]]; then
-            echo "Workflow triggered by issue event"
-            
-            # For issue event trigger, use the issue context directly
-            ISSUE_TITLE="${{ github.event.issue.title }}"
-            ISSUE_BODY="${{ github.event.issue.body }}"
-            
-            echo "Issue title: $ISSUE_TITLE"
-            echo "Issue body available: $([ ! -z "$ISSUE_BODY" ] && echo "Yes" || echo "No")"
-            
-            # Print issue labels if available - using toJSON to safely handle the data
-            echo "Issue labels:"
-            LABELS_JSON='${{ toJSON(github.event.issue.labels) }}'
-            if [[ "$LABELS_JSON" != "null" && "$LABELS_JSON" != "" && "$LABELS_JSON" != "[]" ]]; then
-              echo "$LABELS_JSON" | jq -r '.[].name' 2>/dev/null || echo "Could not parse labels"
-            else
-              echo "No labels found"
-            fi
-            
-            # Parse specific parameters from the issue body
-            if [[ ! -z "$ISSUE_BODY" && "$ISSUE_BODY" != "null" ]]; then
-              # Extract parameters from checkboxes and inputs
-              # Find which option is checked for WRITE_CREDIT_ENGINE
-              if echo "$ISSUE_BODY" | grep -q '\- \[x\] true'; then
+              # Extract WRITE_CREDIT_ENGINE value
+              if echo "${{ github.event.issue.body }}" | grep -q 'Haverá a execução da task RatingUnifier.*- \[x\]'; then
                 WRITE_CREDIT_ENGINE="true"
-              elif echo "$ISSUE_BODY" | grep -q '\- \[x\] false'; then
-                WRITE_CREDIT_ENGINE="false"
               else
-                WRITE_CREDIT_ENGINE="not specified"
+                WRITE_CREDIT_ENGINE="false" # Default value if not checked
               fi
               
-              # Find which option is checked for INITIAL_DATE_CHECK
-              if echo "$ISSUE_BODY" | grep -q '\- \[x\] Sim'; then
-                INITIAL_DATE_CHECK="Sim"
-              elif echo "$ISSUE_BODY" | grep -q '\- \[x\] Não'; then
-                INITIAL_DATE_CHECK="Não"
+              # Extract INITIAL_DATE_CHECK and INITIAL_DATE_SETUP
+              if echo "${{ github.event.issue.body }}" | grep -q 'Utilizar o parametro INITIAL_DATE.*- \[x\]'; then
+                INITIAL_DATE_CHECK="true"
+                # Extract the date line after "Qual a data para o INITIAL_DATE?"
+                INITIAL_DATE_SETUP=$(echo "${{ github.event.issue.body }}" | grep -A1 'Qual a data para o INITIAL_DATE' | tail -n1 | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+                
+                # Validate date format (YYYY-MM-DD)
+                if [[ ! "$INITIAL_DATE_SETUP" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
+                  echo "::warning::Invalid date format for INITIAL_DATE_SETUP: $INITIAL_DATE_SETUP"
+                  INITIAL_DATE_CHECK="false"
+                  INITIAL_DATE_SETUP=""
+                fi
               else
-                INITIAL_DATE_CHECK="not specified"
+                INITIAL_DATE_CHECK="false"
+                INITIAL_DATE_SETUP=""
               fi
               
-              # Extract the date value from the input field - more robust approach
-              INITIAL_DATE_SETUP=$(echo "$ISSUE_BODY" | awk '/Qual a data para o INITIAL_DATE/{getline; getline; print}' | sed 's/^[[:space:]]*//' | sed 's/[[:space:]]*$//' || echo "not specified")
-              if [[ -z "$INITIAL_DATE_SETUP" ]]; then
-                INITIAL_DATE_SETUP="not specified"
-              fi
+              # Output the values
+              echo "WRITE_CREDIT_ENGINE=$WRITE_CREDIT_ENGINE" >> $GITHUB_OUTPUT
+              echo "INITIAL_DATE_CHECK=$INITIAL_DATE_CHECK" >> $GITHUB_OUTPUT
+              echo "INITIAL_DATE_SETUP=$INITIAL_DATE_SETUP" >> $GITHUB_OUTPUT
               
+              echo "Parsed values:"
               echo "WRITE_CREDIT_ENGINE: $WRITE_CREDIT_ENGINE"
               echo "INITIAL_DATE_CHECK: $INITIAL_DATE_CHECK"
               echo "INITIAL_DATE_SETUP: $INITIAL_DATE_SETUP"
-            else
-              echo "Issue body is empty or not available"
-            fi
-            
-          else
-            echo "Workflow triggered manually via workflow_dispatch"
-            
-            # For manual dispatch, query the most recent matching issue using GitHub API
-            echo "Fetching the most recent [credit-data-science] Parameters_update issue..."
-            
-            ISSUE_DATA=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-              "https://api.github.com/repos/${{ github.repository }}/issues?state=open&labels=credit,job-parameters&per_page=1")
-            
-            # Check if we found an issue
-            ISSUE_COUNT=$(echo "$ISSUE_DATA" | jq '. | length')
-            
-            if [[ "$ISSUE_COUNT" -gt 0 ]]; then
-              # Extract information from the issue
-              ISSUE_TITLE=$(echo "$ISSUE_DATA" | jq -r '.[0].title')
-              ISSUE_BODY=$(echo "$ISSUE_DATA" | jq -r '.[0].body')
-              ISSUE_NUMBER=$(echo "$ISSUE_DATA" | jq -r '.[0].number')
-              
-              echo "Found issue #$ISSUE_NUMBER with title: $ISSUE_TITLE"
-              echo "Issue body available: $([ ! -z "$ISSUE_BODY" ] && echo "Yes" || echo "No")"
-              
-              # Print issue labels
-              echo "Issue labels:"
-              echo "$ISSUE_DATA" | jq -r '.[0].labels[].name' || echo "No labels found or could not parse"
-              
-              # Parse specific parameters from the issue body
-              if [[ ! -z "$ISSUE_BODY" && "$ISSUE_BODY" != "null" ]]; then
-                # Extract parameters from checkboxes and inputs
-                # Find which option is checked for WRITE_CREDIT_ENGINE
-                if echo "$ISSUE_BODY" | grep -q '\- \[x\] true'; then
-                  WRITE_CREDIT_ENGINE="true"
-                elif echo "$ISSUE_BODY" | grep -q '\- \[x\] false'; then
-                  WRITE_CREDIT_ENGINE="false"
-                else
-                  WRITE_CREDIT_ENGINE="not specified"
-                fi
-                
-                # Find which option is checked for INITIAL_DATE_CHECK
-                if echo "$ISSUE_BODY" | grep -q '\- \[x\] Sim'; then
-                  INITIAL_DATE_CHECK="Sim"
-                elif echo "$ISSUE_BODY" | grep -q '\- \[x\] Não'; then
-                  INITIAL_DATE_CHECK="Não"
-                else
-                  INITIAL_DATE_CHECK="not specified"
-                fi
-                
-                # Extract the date value from the input field - more robust approach
-                INITIAL_DATE_SETUP=$(echo "$ISSUE_BODY" | awk '/Qual a data para o INITIAL_DATE/{getline; getline; print}' | sed 's/^[[:space:]]*//' | sed 's/[[:space:]]*$//' || echo "not specified")
-                if [[ -z "$INITIAL_DATE_SETUP" ]]; then
-                  INITIAL_DATE_SETUP="not specified"
-                fi
-                
-                echo "WRITE_CREDIT_ENGINE: $WRITE_CREDIT_ENGINE"
-                echo "INITIAL_DATE_CHECK: $INITIAL_DATE_CHECK"
-                echo "INITIAL_DATE_SETUP: $INITIAL_DATE_SETUP"
-              else
-                echo "Issue body is empty or not in expected format"
-              fi
-              
-            else
-              echo "No matching issues found with the required labels."
-            fi
-          fi

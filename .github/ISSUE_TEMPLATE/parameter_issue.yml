@@ -4,7 +4,7 @@ title: "[credit-data-science] Parameters_update"
 labels: ["credit", "job-parameters"]
 
 body:
-  - type: checkbox
+  - type: checkboxes
     id: write_credit_engine
     attributes:
       label: "WRITE_CREDIT_ENGINE"

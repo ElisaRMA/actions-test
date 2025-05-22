@@ -34,12 +34,13 @@ jobs:
                 INITIAL_DATE_CHECK="true"
                 echo "DEBUG: INITIAL_DATE checkbox is checked"
                 
-                # Extract the date line - look for YYYY-MM-DD pattern after the question
-                INITIAL_DATE_SETUP=$(echo "${{ github.event.issue.body }}" | grep -A1 '^### Qual a data para o INITIAL_DATE\?' | tail -n1 | grep -Eo '[0-9]{4}-[0-9]{2}-[0-9]{2}')
-                
+                  INITIAL_DATE_SETUP=$(echo "${ISSUE_BODY}" | grep -A1 '^### Qual a data para o INITIAL_DATE\?' | tail -n1 | grep -Eo '[0-9]{4}-[0-9]{2}-[0-9]{2}')
+                  echo "DEBUG: Extracted date: '${INITIAL_DATE_SETUP}'"
+              
               else
                 INITIAL_DATE_CHECK="false"
                 echo "DEBUG: INITIAL_DATE_CHECK checkbox is NOT checked"
+                
               fi
 
               # Output the values

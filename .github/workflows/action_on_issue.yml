@@ -21,7 +21,7 @@ jobs:
               echo "======================"
               
               # Extract WRITE_CREDIT_ENGINE value
-              if echo "${{ github.event.issue.body }}" | grep -q 'Haverá a execução da task RatingUnifier.*- \[x\]'; then
+              if echo "${{ github.event.issue.body }}" | grep -q 'Haverá a execução da task RatingUnifier.*\[x\]'; then
                 WRITE_CREDIT_ENGINE="true"
                 echo "DEBUG: WRITE_CREDIT_ENGINE checkbox is checked"
               else
@@ -30,19 +30,13 @@ jobs:
               fi
               
               # Extract INITIAL_DATE_CHECK and INITIAL_DATE_SETUP
-              if echo "${{ github.event.issue.body }}" | grep -q 'Utilizar o parametro INITIAL_DATE.*- \[x\]'; then
+              if echo "${{ github.event.issue.body }}" | grep -q 'Utilizar o parametro INITIAL_DATE.*\[x\]'; then
                 INITIAL_DATE_CHECK="true"
                 echo "DEBUG: INITIAL_DATE checkbox is checked"
                 
-                # First try: Extract date using pattern matching
-                INITIAL_DATE_SETUP=$(echo "${{ github.event.issue.body }}" | grep -oP 'Qual a data para o INITIAL_DATE\?\s*\K\d{4}-\d{2}-\d{2}')
-                echo "DEBUG: First extraction attempt: '$INITIAL_DATE_SETUP'"
-                
-                # Fallback method if first attempt failed
-                if [ -z "$INITIAL_DATE_SETUP" ]; then
-                  INITIAL_DATE_SETUP=$(echo "${{ github.event.issue.body }}" | grep -A1 'Qual a data para o INITIAL_DATE' | tail -n1 | grep -Eo '[0-9]{4}-[0-9]{2}-[0-9]{2}')
-                  echo "DEBUG: Fallback extraction attempt: '$INITIAL_DATE_SETUP'"
-                fi
+                # Extract the date line - look for YYYY-MM-DD pattern after the question
+                INITIAL_DATE_SETUP=$(echo "${{ github.event.issue.body }}" | grep -A1 'Qual a data para o INITIAL_DATE' | grep -Eo '[0-9]{4}-[0-9]{2}-[0-9]{2}')
+                echo "DEBUG: Extracted date: '$INITIAL_DATE_SETUP'"
               
                 # Validate date format
                 if [[ "$INITIAL_DATE_SETUP" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then

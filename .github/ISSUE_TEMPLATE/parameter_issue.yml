@@ -12,16 +12,13 @@ body:
         - label: "Haverá a execução da task RatingUnifier? (Marque em caso afirmativo)"
           required: true
       
-  - type: dropdown
+  - type: checkboxes
     id: initial_date_check
     attributes:
       label: "INITIAL_DATE"
-      description: "Utilizar o parametro INITIAL_DATE na task RevenueModel?"
       options:
-        - "Sim"
-        - "Não"
-    validations:
-      required: true
+        - label: "Utilizar o parametro INITIAL_DATE na task RevenueModel? (Marque em caso afirmativo)"
+          required: true
       
   - type: input
     id: initial_date_setup

@@ -15,7 +15,7 @@ jobs:
         
       - name: Get issue details and print labels
         run: |
-              # Debug: Print the full issue body to verify content
+              # Debug: Print the full issue body
               echo "=== FULL ISSUE BODY ==="
               echo "${{ github.event.issue.body }}"
               echo "======================"
@@ -29,27 +29,36 @@ jobs:
                 echo "DEBUG: WRITE_CREDIT_ENGINE checkbox is NOT checked"
               fi
               
-              # Extract INITIAL_DATE_CHECK and INITIAL_DATE_SETUP
+              # Initialize INITIAL_DATE variables with default values
+              INITIAL_DATE_CHECK="false"
+              INITIAL_DATE_SETUP=""
+              
+              # Only check INITIAL_DATE if the checkbox is marked
               if echo "${{ github.event.issue.body }}" | grep -q '^- \[x\] Utilizar o parametro INITIAL_DATE na task RevenueModel? (Marque em caso afirmativo)'; then
                 INITIAL_DATE_CHECK="true"
-                echo "DEBUG: INITIAL_DATE checkbox is checked"
+                echo "DEBUG: INITIAL_DATE checkbox is checked - attempting to extract date"
                 
-                  INITIAL_DATE_SETUP=$(echo "${ISSUE_BODY}" | grep -A1 '^### Qual a data para o INITIAL_DATE\?' | tail -n1 | grep -Eo '[0-9]{4}-[0-9]{2}-[0-9]{2}')
-                  echo "DEBUG: Extracted date: '${INITIAL_DATE_SETUP}'"
-              
+                # Extract the date (YYYY-MM-DD format) following the question
+                INITIAL_DATE_SETUP=$(echo "${{ github.event.issue.body }}" | grep -A1 '^### Qual a data para o INITIAL_DATE\?' | tail -n1 | grep -Eo '[0-9]{4}-[0-9]{2}-[0-9]{2}')
+                
+                # Validate the extracted date
+                if [[ "$INITIAL_DATE_SETUP" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
+                  echo "DEBUG: Valid date found: $INITIAL_DATE_SETUP"
+                else
+                  echo "::warning::Invalid date format extracted: '$INITIAL_DATE_SETUP'"
+                  INITIAL_DATE_SETUP=""
+                fi
               else
-                INITIAL_DATE_CHECK="false"
-                echo "DEBUG: INITIAL_DATE_CHECK checkbox is NOT checked"
-                
+                echo "DEBUG: INITIAL_DATE checkbox is NOT checked - skipping date extraction"
               fi
-
-              # Output the values
-              echo "WRITE_CREDIT_ENGINE=${WRITE_CREDIT_ENGINE}" >> $GITHUB_OUTPUT
-              echo "INITIAL_DATE_CHECK=${INITIAL_DATE_CHECK}" >> $GITHUB_OUTPUT
-              echo "INITIAL_DATE_SETUP=${INITIAL_DATE_SETUP}" >> $GITHUB_OUTPUT
               
+              # Output the values
+              echo "WRITE_CREDIT_ENGINE=$WRITE_CREDIT_ENGINE" >> $GITHUB_OUTPUT
+              echo "INITIAL_DATE_CHECK=$INITIAL_DATE_CHECK" >> $GITHUB_OUTPUT
+              echo "INITIAL_DATE_SETUP=$INITIAL_DATE_SETUP" >> $GITHUB_OUTPUT
+              
+              # Final debug output
               echo "=== FINAL PARSED VALUES ==="
-              echo "WRITE_CREDIT_ENGINE: ${WRITE_CREDIT_ENGINE}"
-              echo "INITIAL_DATE_CHECK: ${INITIAL_DATE_CHECK}"
-              echo "INITIAL_DATE_SETUP: ${INITIAL_DATE_SETUP}"
-                
+              echo "WRITE_CREDIT_ENGINE: $WRITE_CREDIT_ENGINE"
+              echo "INITIAL_DATE_CHECK: $INITIAL_DATE_CHECK"
+              echo "INITIAL_DATE_SETUP: $INITIAL_DATE_SETUP"

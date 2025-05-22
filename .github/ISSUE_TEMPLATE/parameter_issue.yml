@@ -8,7 +8,7 @@ body:
     id: write_credit_engine
     attributes:
       label: "WRITE_CREDIT_ENGINE"
-      description: "Escolha se ocorrerá ou não execução da task RatingUnifier"
+      description: "Haverá a execução da task RatingUnifier?"
       options:
         - label: "true"
         - label: "false"
@@ -19,7 +19,7 @@ body:
     id: initial_date_check
     attributes:
       label: "INITIAL_DATE neessário?"
-      description: "Escolha se haverá utilização do parâmetro INITIAL_DATE na task RevenueModel."
+      description: "Utilizar o parametro initial date RevenueModel?"
       options:
         - label: "Sim"
         - label: "Não"
